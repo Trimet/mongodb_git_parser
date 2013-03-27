@@ -66,10 +66,14 @@ def get_issues(r):
                     title_array = title.split(":")
                     Issue.org_subname = title_array[0]
 
+                Issue.short_title = x["title"].encode("utf-8")
 
                 if title_array.__len__() > 2:
                     Issue.initiator = title_array[1]
 
+                    Issue.short_title = title_array[2]
+                else:
+                    Issue.short_title = title_array[1]
 
                 Issue.title = x["title"].encode("utf-8")
 
