@@ -20,6 +20,8 @@ class GIT_Issue():
     title = ""
     body = ""
     label = ""
+    created_date = ""
+    closed_date = ""
     created_time = ""
     closed_time = ""
     initiator = ""
@@ -60,36 +62,14 @@ def get_issues(r):
 
                 title = x["title"].encode("utf-8")
 
-                # if ":" in title:
-                #     c = title.index(":")
-
-                #     Issue.short_title = u''+title[0:c].decode("utf-8")
-
-
-                # if ":" in title[c+1:]:
-                #     z = title[c+1:].index(":")
-                #     Issue.initiator = u''+title[z+1:c+z+1].decode("utf-8")
+                if ":" in title:
+                    title_array = title.split(":")
+                    Issue.org_subname = title_array[0]
 
 
-                initiator_re = re.compile(r":\W*:", re.DOTALL)
+                if title_array.__len__() > 2:
+                    Issue.initiator = title_array[1]
 
-                initiator_array = initiator_re.findall(x["title"].encode("utf-8"))
-
-                for initiator in initiator_array:
-                    print initiator
-
-                    Issue.initiator = initiator
-
-
-
-                short_title_re = re.compile(r"\W*:", re.DOTALL)
-
-                short_title_array = short_title_re.findall(x["title"].encode("utf-8"))
-
-                for short_title in short_title_array:
-                    print short_title
-
-                    Issue.short_title = short_title
 
                 Issue.title = x["title"].encode("utf-8")
 
@@ -117,13 +97,16 @@ def get_issues(r):
 
                 Issue.created_time = x["created_at"]
 
+                Issue.created_date = x["created_at"].split("T")[0]
+
 
             if "closed_at" in x:
                 print x["closed_at"]
 
 
                 Issue.closed_time = x["closed_at"]
-
+                if x["closed_at"] != None:
+                    Issue.closed_date = x["closed_at"].split("T")[0]
 
             print "---------"
 
@@ -167,7 +150,9 @@ def insert_open_in_mongo(issues):
                 "org_subname" : issue.org_subname,
                 "label" : issue.label,
                 "body" : issue.body,
+                "created_date" : issue.created_date,
                 "created" : issue.created_time,
+                "closed_date" : issue.closed_date,
                 "closed" : issue.closed_time,
                 "initiator" : issue.initiator,
                 "responsible" : issue.responsible,
@@ -211,7 +196,9 @@ def insert_closed_in_mongo(issues):
                 "org_subname" : issue.org_subname,
                 "label" : issue.label,
                 "body" : issue.body,
+                "created_date" : issue.created_date,
                 "created" : issue.created_time,
+                "closed_date" : issue.closed_date,
                 "closed" : issue.closed_time,
                 "initiator" : issue.initiator,
                 "responsible" : issue.responsible,
@@ -243,13 +230,13 @@ def clean_issues():
         #     coll.remove( gid, True) 
 
 
-# open_issues = get_issues(r)
-# closed_issues = get_issues(r2)
-# for issue in get_issues(r3):
-#     closed_issues.append(issue)
+open_issues = get_issues(r)
+closed_issues = get_issues(r2)
+for issue in get_issues(r3):
+    closed_issues.append(issue)
 
-# insert_open_in_mongo(open_issues)
-# insert_closed_in_mongo(closed_issues)
+insert_open_in_mongo(open_issues)
+insert_closed_in_mongo(closed_issues)
 
 clean_issues()
 

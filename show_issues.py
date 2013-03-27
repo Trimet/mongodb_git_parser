@@ -30,12 +30,25 @@ print """
     </style>
 """
 
-def get_git():
+def get_git(sort="", fields=""):
     conn = pymongo.Connection()
     db = conn.issues
     coll = db.issues
 
-    stored_issues = db.issues.find( { }).sort( [("org_subname",1), ("responsible", 1), ("initiator",1), ("closed",-1)] )
+    if not sort == "":
+        sorting = []
+        sort_array = sort.split(",")
+        for sort_value in sort_array:
+            sorting.append((sort_value,1))
+    else:
+        sorting = "created"
+
+
+    a = ("org_subname",1)
+
+    print sort, " | ", sort_array, " | ", sorting
+
+    stored_issues = db.issues.find( { "$or" : [{ "responsible" : "vgulaev" },{"responsible" : "parshin"}], "created" : { "$gte" : "2013-03-18T01:01:01Z", "$lte" : "2013-03-24T01:01:01Z" } } ).sort( sorting )
 
     for issue in stored_issues:
         if issue["state"] == "open":
@@ -57,6 +70,19 @@ def get_git():
     # print 1
     # print stored_issues
 
+
+get = cgi.FieldStorage()
+if "sort" in get:
+    sort = get["sort"].value
+else:
+    sort = ""
+
+if "fields" in get:
+    fields = get["fields"].value
+else:
+    fields = "" 
+
+
 print "<table>"
-get_git()
+get_git(sort, fields)
 print "</table>"
