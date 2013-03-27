@@ -86,12 +86,12 @@ def get_git(sort="", fields="", date_range=""):
 
     # ?sort=created_date,org_subname,responsible,initiator,state&date_range=2013-03-18T01:01:01Z,2013-03-20T01:01:01Z&fields=responsible.vgulaev|parshin
 
-    print fields_query
+    # print fields_query
 
     stored_issues = db.issues.find( fields_query ).sort( sorting )
 
     for issue in stored_issues:
-        print issue
+        # print issue
         if issue["state"] == "open":
             print "<tr class='open'>"
         else:

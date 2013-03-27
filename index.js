@@ -29,6 +29,21 @@ $(document).ready( function(){
             })    
             alert(fields)
         }
-        
+
+        var initiator_selected_count = $("#initiator").find("option:selected").size() 
+        var i = 1
+        if( initiator_selected_count > 1 ){
+            fields += ",initiator."
+            $("#initiator").find("option:selected").each( function(){
+                fields += $(this).val()
+                if( initiator_selected_count != i){
+                    fields += "|"
+                } 
+                i++;
+                alert($(this).val());
+            })    
+            alert(fields)
+        }
+        window.location = "show_issues.py?sort=created"+fields
     })
 })
