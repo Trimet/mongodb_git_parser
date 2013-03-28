@@ -22,10 +22,15 @@ html_string = """<!DOCTYPE html>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js" type="text/javascript"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/jquery-ui.min.js" type="text/javascript"></script>
     <script src="index.js" type="text/javascript"></script>
+    <style>
+        select{
+            height:200px;
+        }
+    </style>
 </head>
 <body>
     <form method="GET" action="show_issues.py">
-        <select id="org_name" name="org_name" multiple>"""
+        <select id="org_subname" name="org_subname" multiple>"""
 
 org_subnames = db.issues.find( {} ).distinct("org_subname")
 for org_subname in org_subnames:
@@ -50,6 +55,17 @@ html_string = html_string + """</select>
         </div>
         <div>
             Отсортировать по параметрам: <input type="textarea" name="sort" id="sort" />
+            <a href=# id="add_sort">+</a>
+            <select id="sort_select">
+                <option value="org_subname">Название организации</option>
+                <option value="responsible">Ответственный</option>
+                <option value="initiator">Кто назначил</option>
+                <option value="created">Время создания</option>
+                <option value="closed">Время закрытия</option>
+                <option value="created_date">Дата создания</option>
+                <option value="closed_date">Дата закрытия</option>
+                <option value="state">Закрыто или нет</option>
+            </select>
         </div>
         <input type="submit" />
     </form>

@@ -62,7 +62,7 @@ def get_git(sort="", date_range="", initiator_array="", org_subname_array="", re
     fields_query = { "$and" : [] }
 
     if date_range != "":
-        print date_range
+        # print date_range
         date_array = date_range.split(",")
         date_from = date_array[0]
         date_to = date_array[1]
@@ -72,8 +72,8 @@ def get_git(sort="", date_range="", initiator_array="", org_subname_array="", re
             date_struct["created_date"]["$gte"] = date_from.encode("utf-8")
         if date_to != "":
             date_struct["created_date"]["$lte"] = date_to.encode("utf-8")
-
-        fields_query["$and"].append(date_struct)
+        if date_struct["created_date"].__len__() != 0:
+            fields_query["$and"].append(date_struct)
 
     # if initiator_array != "":
     #     # initiator_value_struct
@@ -89,17 +89,17 @@ def get_git(sort="", date_range="", initiator_array="", org_subname_array="", re
 
     if initiator_array != "":
         initiator_query = get_query_string("initiator", initiator_array)
-        if initiator_query != "":
+        if initiator_query.__len__() != 0:
             fields_query["$and"].append(initiator_query)
 
     if responsible_array != "":
         responsible_query = get_query_string("responsible", responsible_array)
-        if responsible_query != "":
+        if responsible_query.__len__() != 0:
             fields_query["$and"].append(responsible_query)
 
     if org_subname_array != "":
         org_subname_query = get_query_string("org_subname", org_subname_array)
-        if org_subname_query != "":
+        if org_subname_query.__len__() != 0:
             fields_query["$and"].append(org_subname_query)
 
     if fields_query["$and"].__len__() == 0:
@@ -111,7 +111,7 @@ def get_git(sort="", date_range="", initiator_array="", org_subname_array="", re
 
     # ?sort=created_date,org_subname,responsible,initiator,state&date_range=2013-03-18T01:01:01Z,2013-03-20T01:01:01Z&fields=responsible.vgulaev|parshin
 
-    print fields_query
+    # print fields_query
 
     stored_issues = db.issues.find( fields_query ).sort( sorting )
 
@@ -163,7 +163,7 @@ if "dateFrom" in get:
     date_range = date_range+date_from_array[2]+"-"+date_from_array[0]+"-"+date_from_array[1]
 
 if "dateTo" in get:
-    print 1
+    # print 1
     dt = get["dateTo"].value
     # print type(dt)
     date_to_array = dt.split("/")

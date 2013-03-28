@@ -46,4 +46,20 @@ $(document).ready( function(){
         }
         window.location = "show_issues.py?sort=created"+fields
     })
+    $("#add_sort").click( function(){
+        $("#sort_select").find("option:selected").each( function(){
+            // alert( $("#sort").val().indexOf($(this).val()) )
+            if($("#sort").val().indexOf($(this).val())==-1){
+                if($("#sort").val().length > 1){
+                    var new_val = $("#sort").val() + "," + $(this).val()
+                    $("#sort").val(new_val)    
+                } else {
+                    var new_val = $("#sort").val() + $(this).val()
+                    $("#sort").val(new_val) 
+                }
+                
+            }
+        })
+        
+    })
 })
