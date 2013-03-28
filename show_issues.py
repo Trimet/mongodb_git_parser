@@ -30,7 +30,23 @@ print """
     </style>
 """
 
-def get_git(sort="", fields="", date_range=""):
+def get_query_string(field_name,field_array):
+    if field_array != "":
+        field_value_struct = {}
+        if field_array.__len__() > 1:
+            
+            field_value_struct["$or"] = []
+            for field in field_array:
+                field_value_struct["$or"].append( { field_name : { "$regex" : u""+field.decode("utf-8") } } )
+                # print value
+        else:
+            for field in field_array:
+                field_value_struct[field_name] = { "$regex" : u""+field.decode("utf-8") }
+        return field_value_struct
+    else:
+        return ""
+
+def get_git(sort="", date_range="", initiator_array="", org_subname_array="", responsible_array=""):
     conn = pymongo.Connection()
     db = conn.issues
     coll = db.issues
@@ -58,24 +74,32 @@ def get_git(sort="", fields="", date_range=""):
 
         fields_query["$and"].append(date_struct)
 
-    if fields != "":
-        fields_array = fields.split(",")
-        for field in fields_array:
-            key = field.split(".")[0]
-            value = field.split(".")[1]
-            value_struct = {}
-            if "|" in value:
-                value_array = value.split("|")
-                
-                value_struct["$or"] = []
+    # if initiator_array != "":
+    #     # initiator_value_struct
+    #     if initiator_array.__len__() > 1:
+    #         initiator_value_struct = {}
+    #         initiator_value_struct["$or"] = []
+    #         for initiator in initiator_array:
+    #             initiator_value_struct["$or"].append( { "initiator" : { "$regex" : u""+initiator.decode("utf-8") } } )
+    #             # print value
+    #     else:
+    #         initiator_value_struct["initiator"] = { "$regex" : u""+initiator.decode("utf-8") }
+    #     fields_query["$and"].append(initiator_value_struct)
 
-                for value in value_array:
-                    value_struct["$or"].append( { key : value.decode("utf-8") } )
+    if initiator_array != "":
+        initiator_query = get_query_string("initiator", initiator_array)
+        if initiator_query != "":
+            fields_query["$and"].append(initiator_query)
 
-            else:
-                value_struct[key] = value.decode("utf-8")
+    if responsible_array != "":
+        responsible_query = get_query_string("responsible", responsible_array)
+        if responsible_query != "":
+            fields_query["$and"].append(responsible_query)
 
-            fields_query["$and"].append(value_struct)
+    if org_subname_array != "":
+        org_subname_query = get_query_string("org_subname", org_subname_array)
+        if org_subname_query != "":
+            fields_query["$and"].append(org_subname_query)
 
     if fields_query["$and"].__len__() == 0:
         fields_query = {}
@@ -86,9 +110,11 @@ def get_git(sort="", fields="", date_range=""):
 
     # ?sort=created_date,org_subname,responsible,initiator,state&date_range=2013-03-18T01:01:01Z,2013-03-20T01:01:01Z&fields=responsible.vgulaev|parshin
 
-    # print fields_query
+    print fields_query
 
     stored_issues = db.issues.find( fields_query ).sort( sorting )
+
+    # stored_issues = db.issues.find( {'$and': [{'initiator': {'$regex': u'\u0425\u0443\u0434\u044f\u043a\u043e\u0432 \u0410'}}]} ).sort( sorting )
 
     for issue in stored_issues:
         # print issue
@@ -128,7 +154,54 @@ if "date_range" in get:
 else:
     date_range = ""
 
+if "dateFrom" in get:
+    
+    df = get["dateFrom"].value
+    print type(df)
+    date_from_array = df.split("/")
+    date_range = date_range,date_from_array[2],"-",date_from_array[1],"-",date_from_array[0],"T01:01:01Z"
+
+if "dateTo" in get:
+    
+    dt = get["dateTo"].value
+    print type(dt)
+    date_to_array = dt.split("/")
+    date_range = date_range,",",date_to_array[2],"-",date_to_array[1],"-",date_to_array[0],"T01:01:01Z"
+
+initiator_array = []
+if "initiator" in get:
+    if type(get["initiator"]) == list:
+        for initiator in get["initiator"]:
+            initiator_array.append( initiator.value )
+    else:
+        initiator_array.append( get["initiator"].value )
+else:
+    initiator = ""
+
+org_subname_array = []
+if "org_subname" in get:
+    if type(get["org_subname"]) == list:
+        for org_subname in get["org_subname"]:
+            org_subname_array.append( org_subname.value )
+    else:
+
+        org_subname_array.append( get["org_subname"].value )
+else:
+    org_subname = ""
+
+responsible_array = []
+if "responsible" in get:
+    if type(get["responsible"]) == list:
+        for responsible in get["responsible"]:
+            responsible_array.append( responsible.value )
+    else:
+        # print get["responsible"].value
+        responsible_array.append( get["responsible"].value )
+else:
+    responsible = ""
+
+# print initiator_array
 
 print "<table>"
-get_git(sort, fields, date_range)
+get_git(sort, date_range, initiator_array, org_subname_array, responsible_array)
 print "</table>"
