@@ -48,7 +48,10 @@ html_string = html_string + """</select>
         <div class="dateChooser">
                 Показать задачи в период: <input type="textarea" name="dateFrom" class="dateInput dateFrom" /> - <input type="textarea" name="dateTo" class="dateInput dateTo" />                
         </div>
-        <input type="button" value="Выбрать" id="submit_button" />
+        <div>
+            Отсортировать по параметрам: <input type="textarea" name="sort" id="sort" />
+        </div>
+        <input type="submit" />
     </form>
 </body>
 </html> """

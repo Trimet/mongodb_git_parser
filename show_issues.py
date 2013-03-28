@@ -62,15 +62,16 @@ def get_git(sort="", date_range="", initiator_array="", org_subname_array="", re
     fields_query = { "$and" : [] }
 
     if date_range != "":
+        print date_range
         date_array = date_range.split(",")
         date_from = date_array[0]
         date_to = date_array[1]
         date_struct = {}
-        date_struct["created"] = {}
+        date_struct["created_date"] = {}
         if date_from != "":
-            date_struct["created"]["$gte"] = date_from
+            date_struct["created_date"]["$gte"] = date_from.encode("utf-8")
         if date_to != "":
-            date_struct["created"]["$lte"] = date_to
+            date_struct["created_date"]["$lte"] = date_to.encode("utf-8")
 
         fields_query["$and"].append(date_struct)
 
@@ -114,7 +115,7 @@ def get_git(sort="", date_range="", initiator_array="", org_subname_array="", re
 
     stored_issues = db.issues.find( fields_query ).sort( sorting )
 
-    # stored_issues = db.issues.find( {'$and': [{'initiator': {'$regex': u'\u0425\u0443\u0434\u044f\u043a\u043e\u0432 \u0410'}}]} ).sort( sorting )
+    # stored_issues = db.issues.find( { "$and" : [{ "created_date" : { "$gte" : u"2013-03-18" } }] } ).sort( sorting )
 
     for issue in stored_issues:
         # print issue
@@ -157,16 +158,18 @@ else:
 if "dateFrom" in get:
     
     df = get["dateFrom"].value
-    print type(df)
+    # print type(df)
     date_from_array = df.split("/")
-    date_range = date_range,date_from_array[2],"-",date_from_array[1],"-",date_from_array[0],"T01:01:01Z"
+    date_range = date_range+date_from_array[2]+"-"+date_from_array[0]+"-"+date_from_array[1]
 
 if "dateTo" in get:
-    
+    print 1
     dt = get["dateTo"].value
-    print type(dt)
+    # print type(dt)
     date_to_array = dt.split("/")
-    date_range = date_range,",",date_to_array[2],"-",date_to_array[1],"-",date_to_array[0],"T01:01:01Z"
+    date_range = date_range+","+date_to_array[2]+"-"+date_to_array[0]+"-"+date_to_array[1]
+else:
+    date_range = date_range+","
 
 initiator_array = []
 if "initiator" in get:

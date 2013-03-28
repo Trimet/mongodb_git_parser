@@ -15,13 +15,13 @@ $(document).ready( function(){
     // $("dateFrom").change( function(){ orderDate("up") })
     var fields = "&fields="
     $("#submit_button").click( function(){
-        var org_name_selected_count = $("#org_name").find("option:selected").size() 
+        var org_subname_selected_count = $("#org_subname").find("option:selected").size() 
         var i = 1
-        if( org_name_selected_count > 1 ){
-            fields += "org_name."
-            $("#org_name").find("option:selected").each( function(){
-                fields += $(this).val()
-                if( org_name_selected_count != i){
+        if( org_subname_selected_count > 1 ){
+            fields += "org_subname."
+            $("#org_subname").find("option:selected").each( function(){
+                fields += encodeURIComponent($(this).val())
+                if( org_subname_selected_count != i){
                     fields += "|"
                 } 
                 i++;
@@ -33,9 +33,9 @@ $(document).ready( function(){
         var initiator_selected_count = $("#initiator").find("option:selected").size() 
         var i = 1
         if( initiator_selected_count > 1 ){
-            fields += ",initiator."
+            fields += "initiator."
             $("#initiator").find("option:selected").each( function(){
-                fields += $(this).val()
+                fields += encodeURIComponent($(this).val())
                 if( initiator_selected_count != i){
                     fields += "|"
                 } 
