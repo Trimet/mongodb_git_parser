@@ -46,7 +46,7 @@ def get_query_string(field_name,field_array):
     else:
         return ""
 
-def get_git(sort="", date_range="", initiator_array="", org_subname_array="", responsible_array=""):
+def get_git(sort="", date_range="", initiator_array="", org_subname_array="", responsible_array="", date_range_closed=""):
     conn = pymongo.Connection()
     db = conn.issues
     coll = db.issues
@@ -75,17 +75,23 @@ def get_git(sort="", date_range="", initiator_array="", org_subname_array="", re
         if date_struct["created_date"].__len__() != 0:
             fields_query["$and"].append(date_struct)
 
-    # if initiator_array != "":
-    #     # initiator_value_struct
-    #     if initiator_array.__len__() > 1:
-    #         initiator_value_struct = {}
-    #         initiator_value_struct["$or"] = []
-    #         for initiator in initiator_array:
-    #             initiator_value_struct["$or"].append( { "initiator" : { "$regex" : u""+initiator.decode("utf-8") } } )
-    #             # print value
-    #     else:
-    #         initiator_value_struct["initiator"] = { "$regex" : u""+initiator.decode("utf-8") }
-    #     fields_query["$and"].append(initiator_value_struct)
+    #####
+
+    if date_range_closed != "":
+        # print date_range_closed
+        date_array = date_range_closed.split(",")
+        date_from = date_array[0]
+        date_to = date_array[1]
+        date_struct = {}
+        date_struct["closed_date"] = {}
+        if date_from != "":
+            date_struct["closed_date"]["$gte"] = date_from.encode("utf-8")
+        if date_to != "":
+            date_struct["closed_date"]["$lte"] = date_to.encode("utf-8")
+        if date_struct["closed_date"].__len__() != 0:
+            fields_query["$and"].append(date_struct)
+
+
 
     if initiator_array != "":
         initiator_query = get_query_string("initiator", initiator_array)
@@ -103,6 +109,7 @@ def get_git(sort="", date_range="", initiator_array="", org_subname_array="", re
             fields_query["$and"].append(org_subname_query)
 
     if fields_query["$and"].__len__() == 0:
+        # print fields_query
         fields_query = {}
 
     # print sort, " | ", sort_array, " | ", sorting
@@ -171,6 +178,29 @@ if "dateTo" in get:
 else:
     date_range = date_range+","
 
+######
+
+if "date_range_closed" in get:
+    date_range_closed = get["date_range_closed"].value
+else:
+    date_range_closed = ""
+
+if "dateFromClosed" in get:
+    
+    df = get["dateFromClosed"].value
+    # print type(df)
+    date_from_array = df.split("/")
+    date_range_closed = date_range_closed+date_from_array[2]+"-"+date_from_array[0]+"-"+date_from_array[1]
+
+if "dateToClosed" in get:
+    # print 1
+    dt = get["dateToClosed"].value
+    # print type(dt)
+    date_to_array = dt.split("/")
+    date_range_closed = date_range_closed+","+date_to_array[2]+"-"+date_to_array[0]+"-"+date_to_array[1]
+else:
+    date_range_closed = date_range_closed+","
+
 initiator_array = []
 if "initiator" in get:
     if type(get["initiator"]) == list:
@@ -206,5 +236,5 @@ else:
 # print initiator_array
 
 print "<table>"
-get_git(sort, date_range, initiator_array, org_subname_array, responsible_array)
+get_git(sort, date_range, initiator_array, org_subname_array, responsible_array, date_range_closed)
 print "</table>"

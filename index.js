@@ -11,6 +11,7 @@ $(document).ready( function(){
     })  
     $.datepicker.setDefaults( $.datepicker.regional[ "ru-RU" ] )
     $(".dateInput").datepicker()
+    $(".dateInputClosed").datepicker()
 
     // $("dateFrom").change( function(){ orderDate("up") })
     var fields = "&fields="
